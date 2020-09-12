@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -14,6 +15,9 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+
+  const [notification, setNotification] = useState(null)
+  const [status, setStatus] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -46,6 +50,13 @@ const App = () => {
       setPassword('')
     } catch (exception) {
       console.log(exception)
+      setNotification('Incorrect username or password!')
+      setStatus('error')
+
+      setTimeout(() => {
+        setNotification(null)
+        setStatus(null)
+      }, 5000)
     }
   }
 
@@ -62,12 +73,31 @@ const App = () => {
       author,
       url
     }
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
 
-    const returnedBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(returnedBlog))
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+      setNotification(`A new blog titled "${returnedBlog.title}" by ${returnedBlog.author} has been added.`)
+      setStatus('success')
+
+      setTimeout(() => {
+        setNotification(null)
+        setStatus(null)
+      }, 5000)
+
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+    } catch (exception) {
+      setNotification('Invalid data')
+      setStatus('error')
+
+      setTimeout(() => {
+        setNotification(null)
+        setStatus(null)
+      }, 5000)
+    }
+
   }
 
   const loginForm = () => (
@@ -85,9 +115,16 @@ const App = () => {
       url={{ value: url, onChange: setUrl }} />
   )
 
+  const notificationMessage = () => (
+    <Notification message={notification} status={status} />
+  )
+
   return (
     <div>
       <h2>blogs</h2>
+      {notification === null
+        ? <div></div>
+        : notificationMessage()}
       {user === null
         ? loginForm()
         : <div>
