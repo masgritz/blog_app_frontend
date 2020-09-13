@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -71,18 +72,23 @@ const App = () => {
   }
 
   const loginForm = () => (
-    <LoginForm
-      onSubmit={handleLogin}
-      username={{ value: username, onChange: setUsername }}
-      password={{ value: password, onChange: setPassword }} />
+    <Togglable buttonLabel='login'>
+      <LoginForm
+        handleSubmit={handleLogin}
+        username={username}
+        password={password}
+        handleUsernameChange={({ target }) => setUsername(target.value)}
+        handlePasswordChange={({ target }) => setPassword(target.value)}
+      />
+    </Togglable>
   )
 
+  const blogFormRef = useRef()
+
   const blogForm = () => (
-    <BlogForm
-      onSubmit={addBlog}
-      title={{ value: title, onChange: setTitle }}
-      author={{ value: author, onChange: setAuthor }}
-      url={{ value: url, onChange: setUrl }} />
+    <Togglable buttonLabel='New Blog' ref={blogFormRef}>
+      <BlogForm createBlog={addBlog} />
+    </Togglable>
   )
 
   const notificationMessage = () => (
