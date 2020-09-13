@@ -12,10 +12,6 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-
   const [notification, setNotification] = useState(null)
   const [status, setStatus] = useState(null)
 
@@ -65,39 +61,13 @@ const App = () => {
     setUser(null)
   }
 
-  const addBlog = async (event) => {
-    event.preventDefault()
-
-    const blogObject = {
-      title,
-      author,
-      url
-    }
-    try {
-      const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
-
-      setNotification(`A new blog titled "${returnedBlog.title}" by ${returnedBlog.author} has been added.`)
-      setStatus('success')
-
-      setTimeout(() => {
-        setNotification(null)
-        setStatus(null)
-      }, 5000)
-
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-    } catch (exception) {
-      setNotification('Invalid data')
-      setStatus('error')
-
-      setTimeout(() => {
-        setNotification(null)
-        setStatus(null)
-      }, 5000)
-    }
-
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility()
+    blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+      })
   }
 
   const loginForm = () => (
